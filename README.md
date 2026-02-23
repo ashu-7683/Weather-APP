@@ -6,10 +6,10 @@ Django temperature fetching app with Openweathermap api.
 
 ```
 open terminal and type
-https://github.com/Sany07/Weather-App.git
+https://github.com/ashu-7683/Weather-App.git
 
 or simply download using the url below
-https://github.com/Sany07/Weather-App.git
+https://github.com/ashu-7683/Weather-App.git
 ```
 
 ## Install requirements
