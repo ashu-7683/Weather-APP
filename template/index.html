@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>Weather App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px 0;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Animated background particles */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 700px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Navbar styling */
+        .navbar {
+            background: rgba(255, 255, 255, 0.15) !important;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            padding: 15px 0 !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            margin-bottom: 40px;
+        }
+
+        .navbar-brand {
+            font-size: 32px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            color: white !important;
+            text-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .navbar-brand:hover {
+            transform: scale(1.05);
+            text-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .navbar-brand i {
+            margin-right: 10px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        /* Location notice */
+        .location-notice {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            color: #667eea;
+            font-size: 14px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            animation: slideDown 0.5s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .location-notice i {
+            margin-right: 10px;
+            font-weight: bold;
+        }
+
+        /* Info card styling */
+        .info-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 40px;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            animation: slideUp 0.6s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .info-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 25px 50px rgba(102, 126, 234, 0.3);
+        }
+
+        .info-card .card-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            padding: 25px !important;
+            margin: -40px -40px 30px -40px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .info-card .card-header h5 {
+            margin: 0;
+            font-size: 26px;
+            font-weight: 700;
+            color: white;
+            letter-spacing: 0.5px;
+        }
+
+        .info-card .card-header i {
+            margin-right: 10px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        /* Form styling */
+        .form-control {
+            border-radius: 12px;
+            padding: 18px 20px !important;
+            border: 2px solid #e8e8f0;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.8);
+        }
+
+        .form-control::placeholder {
+            color: #999;
+            font-style: italic;
+        }
+
+        .form-control:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.3rem rgba(102, 126, 234, 0.2);
+            background: white;
+            transform: scale(1.02);
+        }
+
+        /* Button styling */
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 12px;
+            padding: 15px 30px;
+            font-weight: 700;
+            font-size: 16px;
+            margin-top: 25px;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            width: 100%;
+            letter-spacing: 0.5px;
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+            transition: left 0.5s ease;
+            z-index: -1;
+        }
+
+        .btn-primary:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
+            color: white;
+        }
+
+        .btn-primary:active {
+            transform: translateY(-1px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        /* Result card styling */
+        .result-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            margin-top: 30px;
+        }
+
+        @keyframes popIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.9) translateY(20px);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .result-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            color: white;
+            padding: 35px 30px;
+            text-align: center;
+            font-size: 32px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .result-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            animation: shimmer 8s linear infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .result-header i {
+            margin-right: 12px;
+            animation: bounce 2s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .result-body {
+            padding: 40px 30px;
+        }
+
+        /* Weather detail styling */
+        .weather-detail {
+            display: flex;
+            align-items: center;
+            padding: 20px 0;
+            border-bottom: 1px solid #f0f0f0;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .weather-detail:last-child {
+            border-bottom: none;
+        }
+
+        .weather-detail:hover {
+            transform: translateX(5px);
+            background: rgba(102, 126, 234, 0.05);
+            padding-left: 10px;
+            border-radius: 10px;
+            margin-left: -10px;
+            padding-right: 10px;
+            margin-right: -10px;
+        }
+
+        .weather-detail i {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+            margin-right: 25px;
+            font-size: 22px;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .weather-detail:hover i {
+            transform: scale(1.1) rotate(5deg);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .weather-detail-content {
+            flex: 1;
+        }
+
+        .weather-label {
+            color: #999;
+            font-size: 12px;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        .weather-value {
+            color: #333;
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+        }
+
+        /* Error card styling */
+        .error-card {
+            background: linear-gradient(135deg, rgba(252, 92, 101, 0.15) 0%, rgba(252, 92, 101, 0.05) 100%);
+            border-left: 5px solid #fc5c65;
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 30px;
+            color: #c23030;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            animation: shake 0.5s ease;
+            box-shadow: 0 10px 30px rgba(252, 92, 101, 0.15);
+            border: 1px solid rgba(252, 92, 101, 0.2);
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .error-card i {
+            font-size: 28px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        /* Responsive design */
+        @media (max-width: 600px) {
+            .info-card {
+                padding: 30px 20px;
+            }
+
+            .info-card .card-header {
+                margin: -30px -20px 25px -20px;
+                padding: 20px !important;
+            }
+
+            .result-header {
+                font-size: 24px;
+                padding: 25px 20px;
+            }
+
+            .weather-value {
+                font-size: 20px;
+            }
+
+            .navbar-brand {
+                font-size: 24px;
+            }
+        }
+
+        /* Smooth scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Loading animation */
+        @keyframes loading {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
+        .loading {
+            animation: loading 1.5s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#"><i class="fas fa-cloud-sun-rain"></i> WeatherApp</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="location-notice">
+            <i class="fas fa-location-dot"></i> Please Allow Browser Location Access
+        </div>
+
+        <div class="info-card">
+            <div class="card-header">
+                <h5><i class="fas fa-magnifying-glass"></i> Get Weather Info</h5>
+            </div>
+            <div class="card-body p-0">
+                <form method="POST">
+                    {% csrf_token %}
+                    <input name="city" id="city" required type="text" class="form-control" placeholder="🌍 Enter City Name (e.g., London, New York, Tokyo)">
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i> Show Weather</button>
+                </form>
+            </div>
+        </div>
+
+        {% if error %}
+        <div class="error-card">
+            <i class="fas fa-triangle-exclamation"></i>
+            <div>{{ error }}</div>
+        </div>
+        {% elif temp %}
+        <div class="result-card">
+            <div class="result-header">
+                <i class="fas fa-location-pin"></i> {{ city_name }}, {{ country_code }}
+            </div>
+            <div class="result-body">
+                <div class="weather-detail">
+                    <i class="fas fa-temperature-high"></i>
+                    <div class="weather-detail-content">
+                        <div class="weather-label">🌡️ Temperature</div>
+                        <div class="weather-value">{{ temp }}&deg; C</div>
+                    </div>
+                </div>
+
+                <div class="weather-detail">
+                    <i class="fas fa-cloud"></i>
+                    <div class="weather-detail-content">
+                        <div class="weather-label">☁️ Condition</div>
+                        <div class="weather-value">{{ description }}</div>
+                    </div>
+                </div>
+
+                <div class="weather-detail">
+                    <i class="fas fa-droplet"></i>
+                    <div class="weather-detail-content">
+                        <div class="weather-label">💧 Humidity</div>
+                        <div class="weather-value">{{ humidity }}%</div>
+                    </div>
+                </div>
+
+                <div class="weather-detail">
+                    <i class="fas fa-wind"></i>
+                    <div class="weather-detail-content">
+                        <div class="weather-label">💨 Wind Speed</div>
+                        <div class="weather-value">{{ wind_speed }} km/h</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        // Get geolocation on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const locationNotice = document.querySelector('.location-notice');
+            const cityInput = document.getElementById('city');
+            
+            // Check if geolocation is available
+            if (navigator.geolocation) {
+                // Request user's location
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        const latitude = position.coords.latitude;
+                        const longitude = position.coords.longitude;
+                        
+                        // Use reverse geocoding to get city name from coordinates
+                        // Using Nominatim reverse geocoding
+                        const reverseGeoUrl = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`;
+                        
+                        fetch(reverseGeoUrl)
+                            .then(response => response.json())
+                            .then(data => {
+                                // Extract city name from the response
+                                const city = data.address?.city || 
+                                            data.address?.town || 
+                                            data.address?.village || 
+                                            data.address?.county ||
+                                            data.name ||
+                                            '';
+                                
+                                if (city) {
+                                    cityInput.value = '';
+                                    locationNotice.style.display = 'none';
+                                    
+                                    // Update location notice with success message
+                                    const successNotice = document.createElement('div');
+                                    successNotice.className = 'location-notice';
+                                    successNotice.style.background = 'rgba(76, 175, 80, 0.15)';
+                                    successNotice.style.color = '#4CAF50';
+                                    successNotice.style.borderLeft = '5px solid #4CAF50';
+                                    successNotice.innerHTML = '<i class="fas fa-check-circle"></i> Location detected: ' + city;
+                                    locationNotice.parentNode.insertBefore(successNotice, locationNotice);
+                                }
+                            })
+                            .catch(error => {
+                                console.log('Reverse geocoding error:', error);
+                                showLocationError('Could not determine your city location');
+                            });
+                    },
+                    function(error) {
+                        handleLocationError(error, locationNotice);
+                    },
+                    {
+                        enableHighAccuracy: false,
+                        timeout: 10000,
+                        maximumAge: 300000 // Cache location for 5 minutes
+                    }
+                );
+            } else {
+                // Geolocation not supported
+                showLocationError('Geolocation is not supported by your browser');
+            }
+            
+            // Add form input event listeners
+            cityInput.addEventListener('focus', function() {
+                this.style.borderColor = '#667eea';
+            });
+            
+            cityInput.addEventListener('blur', function() {
+                this.style.borderColor = '#e8e8f0';
+            });
+        });
+        
+        // Handle geolocation errors
+        function handleLocationError(error, locationNotice) {
+            let errorMessage = '';
+            
+            switch(error.code) {
+                case error.PERMISSION_DENIED:
+                    errorMessage = 'Location permission denied. Please enable location access in browser settings.';
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    errorMessage = 'Location information is unavailable.';
+                    break;
+                case error.TIMEOUT:
+                    errorMessage = 'Location request timed out.';
+                    break;
+                default:
+                    errorMessage = 'An error occurred while retrieving location.';
+            }
+            
+            showLocationError(errorMessage);
+        }
+        
+        // Show location error message
+        function showLocationError(message) {
+            const locationNotice = document.querySelector('.location-notice');
+            locationNotice.style.background = 'rgba(252, 92, 101, 0.15)';
+            locationNotice.style.color = '#fc5c65';
+            locationNotice.style.borderLeft = '5px solid #fc5c65';
+            locationNotice.innerHTML = '<i class="fas fa-triangle-exclamation"></i> ' + message;
+            locationNotice.style.marginBottom = '20px';
+        }
+    </script>
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"></script>
+</body>
+</html>
