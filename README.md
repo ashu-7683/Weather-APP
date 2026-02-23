@@ -21,7 +21,7 @@ pip install -r requirements.txt
 ## Add your own api key in views.py
 
 ```
-get your api key from here:  https://www.weatherbit.io/
+get your api key from here: https://openweathermap.org
 ```
 
 <div align="center">
