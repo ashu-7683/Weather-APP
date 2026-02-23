@@ -4,7 +4,7 @@ import requests
 def Home(request):
     """ Api From OpenWeatherMap """
 
-    key = '0238e6f236b3a27821e6bffb24b4bd37'  #openweathermap free api key
+    key = 'your-openweathermap-api-key-here'  #openweathermap free api key
     url = 'https://api.openweathermap.org/data/2.5/weather?q={}&appid={}&units=metric'
 
 
