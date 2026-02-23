@@ -1,5 +1,5 @@
 # Weather-App
-Django temperature fetching app with Weatherbit api.  
+Django temperature fetching app with Openweathermap api.  
 
 
 ## Installation
