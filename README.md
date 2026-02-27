@@ -25,6 +25,6 @@ get your api key from here: https://openweathermap.org
 ```
 
 <div align="center">
-    <h3>========Thank You=========</h3>
+    <h3>===Thank You===</h3>
 </div>
 
